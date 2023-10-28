@@ -1,0 +1,59 @@
+[workspace]
+resolver = "2"
+
+[workspace.package]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+rust-version = "1.65.0"  # MSRV 1.65.0 so that we can use let-else pattern
+include = [
+  "build.rs",
+  "src/**/*",
+  "Cargo.toml",
+  "Cargo.lock",
+  "LICENSE*",
+  "README.md",
+  "benches/**/*",
+  "examples/**/*"
+]
+
+[package]
+name = "lazysort-base"
+version = "0.0.1"
+description = "Lazy (delayed) Quick Sort - base for various recursive, pre-allocated & no-alloc implementations"
+keywords = [
+]
+categories = [
+]
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+include.workspace = true
+repository = "https://github.com/scale-rs/lazysort-prealloc"
+authors = ["Peter Kehl <peter.kehl@gmail.com>"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[package.metadata.release]
+pre-release-replacements = [
+  {file="CHANGELOG.md", search="Unreleased", replace="{{version}}", min=1},
+  {file="CHANGELOG.md", search="\\.\\.\\.HEAD", replace="...{{tag_name}}", exactly=1},
+  {file="CHANGELOG.md", search="ReleaseDate", replace="{{date}}", min=1},
+  {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly=1},
+  {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/ORG/PROJECT/compare/{{tag_name}}...HEAD", exactly=1},
+]
+
+[features]
+default = []
+# Most of the (non-default) features are NOT implemented yet!
+nightly_lazy_type_alias     = []
+nightly_strict_provenance   = []
+
+# Use (nightly) allocator API. That does NOT necessarily mean accepting custom allocators for
+# `Vec`-s passed from the client - for that use `accept_custom_alloc`.
+_internal_use_allocator_api = ["nightly_lazy_type_alias"]
+
+nightly_guard_cross_alloc   = ["nightly_lazy_type_alias", "_internal_use_allocator_api"]
+nightly_guard_cross_cleanup = ["nightly_lazy_type_alias", "nightly_guard_cross_alloc"]
+nightly_accept_custom_alloc = ["nightly_lazy_type_alias", "nightly_guard_cross_cleanup"]
